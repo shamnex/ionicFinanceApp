@@ -1,0 +1,66 @@
+<!--
+  Generated template for the RegisterPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<!--
+  Generated template for the LoginPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+
+<ion-content class="background">
+    <ion-grid class="vertical-align">
+        <ion-row>
+            <ion-col>
+            </ion-col>
+
+            <ion-col col-md-3 >
+                <img src="assets/imgs/logo.png" alt="">
+            </ion-col>
+            <ion-col>
+            </ion-col>
+        </ion-row>
+        <form [formGroup]="registerForm"> 
+          <ion-row>
+              <ion-col>
+                  <ion-list no-lines>
+                      <ion-item class="transparent">
+                          <!-- <label>Username</label> -->
+                          <input placeholder="Full Name" formControlName='name' type="text">
+                      </ion-item>
+                      <ion-item class="transparent">
+                          <!-- <label>Username</label> -->
+                          <input placeholder="Email" formControlName='email' type="email">
+                      </ion-item>
+  
+                      <ion-item class="transparent">
+                          <!-- <label>Password</label> -->
+                          <input placeholder="Password" formControlName='password'type="text">
+                      </ion-item>
+  
+  
+                      <ion-item class="transparent">
+                          <!-- <label>Password</label> -->
+                          <input placeholder="Confirm Password" formControlName='confirmPassword'type="text">
+                      </ion-item>
+  
+                      <ion-item class="transparent">
+                            <button (click)="submit()" color="light" block>Register</button>
+                      </ion-item>
+                  </ion-list>
+              </ion-col>
+          </ion-row>
+        </form>
+        <!-- <ion-footer >
+            <ion-toolbar>
+                <p [navPush]="loginPage" color="primary" text-center>Already Registered? <strong>Login</strong></p>
+            </ion-toolbar>
+          </ion-footer> -->
+    </ion-grid>
+
+
+
+</ion-content>
