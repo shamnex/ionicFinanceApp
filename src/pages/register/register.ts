@@ -7,7 +7,6 @@ import { CustomValidators } from "ng2-validation";
 import { DashboardPage } from '../dashboard/dashboard';
 
 import { AngularFireAuth } from 'angularfire2/auth';
-import * as firebase from 'firebase/app';
 
 import "rxjs/add/operator/debounceTime";
 import { Observable } from 'rxjs/Observable';
