@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { IonicPage, Platform, NavController, NavParams, LoadingController, AlertController } from 'ionic-angular';
+import { IonicPage, Platform, NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthProvider } from '../../providers/auth/auth';
 
@@ -21,6 +21,7 @@ import { FingerprintAIO, FingerprintOptions } from "@ionic-native/fingerprint-ai
 export class LoginPage implements OnInit {
   loginForm: FormGroup;
   regPage: any = 'RegisterPage';
+  fingerprintOptions: FingerprintOptions
   @ViewChild('passwordInput') passwordInput: ElementRef;
 
   constructor(
@@ -30,7 +31,6 @@ export class LoginPage implements OnInit {
     private _fb: FormBuilder,
     private _auth: AuthProvider,
     private _loading: LoadingController,
-    private _alertCtrl: AlertController,
     private _fingerPrint: FingerprintAIO
   ) {
 
@@ -38,6 +38,8 @@ export class LoginPage implements OnInit {
       email: ["", Validators.required],
       password: ["", Validators.required]
     })
+
+
   }
 
 
@@ -46,9 +48,7 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-    const passControl = this.loginForm.get('password');
     const emailControl = this.loginForm.get('email');
-
     this._auth.storageControl('get', 'user').then(res => {
       if (res !== null) {
         emailControl.setValue(res.email)
@@ -56,18 +56,30 @@ export class LoginPage implements OnInit {
         passInput.onfocus = () => {
 
           if (emailControl.value === res.email) {
-            console.log('use fingerprint');
+            this._auth.storageControl('get', 'user').then((user)=> {
+              console.log('use fingerprint');
+              console.log(user);
+                const fingerprintOptions: FingerprintOptions = {
+                  clientId: user.email,
+                  clientSecret: user.id,
+                  disableBackup: true
+                }
+              this.showFingerprint(fingerprintOptions);
+            })
           }
         };
       }
     })
   }
 
-  async showFingerprint() {
+  async showFingerprint(options) {
     try {
       await this.platform.ready();
       const available = await this._fingerPrint.isAvailable();
       console.log(available);
+      if(available === "OK") {
+        this._fingerPrint.show(options);
+      }
     }
     catch (e) {
       console.log(e)
@@ -98,6 +110,6 @@ export class LoginPage implements OnInit {
       });
   }
   gotoReg() {
-    this.navCtrl.push('RegisterPage')
+    this.navCtrl.push('RegisterPage');
   }
 }

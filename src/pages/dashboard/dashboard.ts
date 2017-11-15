@@ -50,7 +50,6 @@ export class DashboardPage implements OnInit {
     });
 
     loading.present();
-
     this._auth.signOut().subscribe((user)=> {
       this._auth.storageControl('set', 'user', user);
       this.menu.close();
