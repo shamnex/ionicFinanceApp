@@ -2,6 +2,14 @@
     background: linear-gradient(0deg, #16736B, #00A193);
     height: 40%;
     padding : 40px 20px;
+    p {
+        color: #fff;
+        text-transform: uppercase;
+        position: absolute;
+        text-align: center;
+        bottom: 20px;
+        font-size: 20px;
+    }
 }
 
 ion-content {

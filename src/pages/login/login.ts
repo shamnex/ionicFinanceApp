@@ -21,6 +21,7 @@ import { FingerprintAIO, FingerprintOptions } from "@ionic-native/fingerprint-ai
 export class LoginPage implements OnInit {
   loginForm: FormGroup;
   regPage: any = 'RegisterPage';
+  fingerprintOptions: FingerprintOptions
   @ViewChild('passwordInput') passwordInput: ElementRef;
 
   constructor(
@@ -38,6 +39,8 @@ export class LoginPage implements OnInit {
       email: ["", Validators.required],
       password: ["", Validators.required]
     })
+
+
   }
 
 
@@ -56,18 +59,30 @@ export class LoginPage implements OnInit {
         passInput.onfocus = () => {
 
           if (emailControl.value === res.email) {
-            console.log('use fingerprint');
+            this._auth.storageControl('get', 'user').then((user)=> {
+              console.log('use fingerprint');
+              console.log(user);
+                const fingerprintOptions: FingerprintOptions = {
+                  clientId: user.email,
+                  clientSecret: user.id,
+                  disableBackup: true
+                }
+              this.showFingerprint(fingerprintOptions);
+            })
           }
         };
       }
     })
   }
 
-  async showFingerprint() {
+  async showFingerprint(options) {
     try {
       await this.platform.ready();
       const available = await this._fingerPrint.isAvailable();
       console.log(available);
+      if(available === "OK") {
+        this._fingerPrint.show(options);
+      }
     }
     catch (e) {
       console.log(e)
@@ -98,6 +113,6 @@ export class LoginPage implements OnInit {
       });
   }
   gotoReg() {
-    this.navCtrl.push('RegisterPage')
+    this.navCtrl.push('RegisterPage');
   }
 }
