@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component, OnInit } from '@angular/core';
+import { IonicPage, NavController,LoadingController, NavParams, MenuController } from 'ionic-angular';
+import { AuthProvider } from '../../providers/auth/auth';
+import 'rxjs/Rx'
 
 /**
  * Generated class for the DashboardPage page.
@@ -13,13 +15,53 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
   selector: 'page-dashboard',
   templateUrl: 'dashboard.html',
 })
-export class DashboardPage {
+export class DashboardPage implements OnInit {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(
+    public navCtrl: NavController, 
+    public navParams: NavParams,
+    private _auth: AuthProvider,
+    private _loading: LoadingController,
+    public menu: MenuController) {
+      menu.enable(true);
+      this._auth.getActiveUser().take(1).subscribe(user => {
+        this.currentUser = user;
+      })
   }
 
+  currentUser;
+
+  ngOnInit() {
+    
+    this._auth.isAuthenticated.subscribe((isIt)=> {
+      return isIt? this.navCtrl.setRoot('DashboardPage'): this.navCtrl.setRoot('LoginPage');
+    })
+
+  }
+  
   ionViewDidLoad() {
     console.log('ionViewDidLoad DashboardPage');
+  }
+
+
+  SignOut() {
+    const loading = this._loading.create({
+      content: 'Signing Out..'
+    });
+
+    loading.present();
+
+    this._auth.signOut().subscribe((user)=> {
+      this._auth.storageControl('set', 'user', user);
+      this.menu.close();
+      loading.dismiss();
+      loading.onDidDismiss(()=> {
+        setTimeout(()=>{
+          this.navCtrl.goToRoot(null);
+        },300)
+      })
+    });
+
   }
 
 }

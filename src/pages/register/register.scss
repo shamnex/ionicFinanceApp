@@ -1,3 +1,38 @@
-page-register {
 
+
+span.error {
+    transition: all 0.3s ease;
+    text-align: left !important;
+    font-size: 12px;
+    opacity: 0;
+    position: absolute;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    margin-top: 25px;
+    margin-left: 15px;
+    margin-right: 15px;
 }
+
+input.form-input-error
+{
+    border-bottom: solid 2px color($colors, danger) !important;
+    color: color($colors, danger);
+    border-color:color($colors, danger);
+    transition: all 0.3s ease;
+    
+}
+
+input.form-input-error:focus {
+    transition: all 0.3s ease;
+    border-bottom: solid 1px color($colors, danger)  !important;
+    color: color($colors, danger);
+    border-color: color($colors, danger);;  
+}
+
+span.fade {
+    color: color($colors, danger);
+    transition: all 0.3s ease;    
+    opacity: 1 !important;
+}
+

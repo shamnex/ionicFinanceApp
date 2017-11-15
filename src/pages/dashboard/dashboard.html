@@ -14,10 +14,28 @@
 </ion-header> -->
 
 
+<ion-menu [content]="content">
+    <ion-header color="primary">
+        <ion-toolbar>
+            <ion-title>MENU</ion-title>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ion-list no-lines>
+            
+            <button  (click)="SignOut()">
+              Sign Out
+            </button>
+        
+        </ion-list>
+    </ion-content>
+</ion-menu>
 
-
-<ion-content>
+<ion-content #content >
     <div class="jumbo">
+            <button ion-button menuToggle icon-only>
+                    <ion-icon name='menu'></ion-icon>
+                  </button>
         <img class="logo" src="assets/imgs/logo.png" alt="">
     </div>
     <ion-grid no-padding>
@@ -50,5 +68,5 @@
             </ion-col>
         </ion-row>
     </ion-grid>
-
 </ion-content>
+

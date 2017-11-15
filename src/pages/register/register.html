@@ -11,48 +11,89 @@
   Ionic pages and navigation.
 -->
 
+<ion-header class="transparent">
+
+  <ion-navbar>
+    <ion-title>
+    </ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
 <ion-content class="background">
     <ion-grid class="vertical-align">
         <ion-row>
             <ion-col>
             </ion-col>
 
-            <ion-col col-md-3 >
+            <ion-col col-md-3>
                 <img src="assets/imgs/logo.png" alt="">
             </ion-col>
             <ion-col>
             </ion-col>
         </ion-row>
-        <form [formGroup]="registerForm"> 
-          <ion-row>
-              <ion-col>
-                  <ion-list no-lines>
-                      <ion-item class="transparent">
-                          <!-- <label>Username</label> -->
-                          <input placeholder="Full Name" formControlName='name' type="text">
-                      </ion-item>
-                      <ion-item class="transparent">
-                          <!-- <label>Username</label> -->
-                          <input placeholder="Email" formControlName='email' type="email">
-                      </ion-item>
-  
-                      <ion-item class="transparent">
-                          <!-- <label>Password</label> -->
-                          <input placeholder="Password" formControlName='password'type="text">
-                      </ion-item>
-  
-  
-                      <ion-item class="transparent">
-                          <!-- <label>Password</label> -->
-                          <input placeholder="Confirm Password" formControlName='confirmPassword'type="text">
-                      </ion-item>
-  
-                      <ion-item class="transparent">
-                            <button (click)="submit()" color="light" block>Register</button>
-                      </ion-item>
-                  </ion-list>
-              </ion-col>
-          </ion-row>
+        <form [formGroup]="registerForm">
+            <ion-row>
+                <ion-col>
+                    <ion-list no-lines>
+                        <ion-item class="transparent">
+                            <!-- <label>Username</label> -->
+                            
+                            <input 
+                            [ngClass]="{'form-input-error': formErrorMessages.name}"
+                            formControlName="name" type="text" class="form-control" placeholder="Full Name">
+
+
+                            <span [ngClass]='{"fade": formErrorMessages.name}' *ngIf="formErrorMessages.name" class="error text=left text-danger">
+                                    {{formErrorMessages.name}}
+                             </span>
+
+                        </ion-item>
+                        <ion-item class="transparent">
+                            <!-- <label>Username</label> -->
+                            <input 
+                            [ngClass]="{'form-input-error': formErrorMessages.email}"
+                            formControlName="email" type="email" class="form-control" id="InputEmail1" placeholder="Email Address">
+
+                            <span [ngClass]='{"fade": formErrorMessages.email}' *ngIf="formErrorMessages.email" class="error text=left text-danger">
+                                {{formErrorMessages.email}}
+                         </span>
+
+                        </ion-item>
+
+                        <ion-item class="transparent">
+                            <!-- <label>Password</label> -->
+                            <input 
+                            [ngClass]="{'form-input-error': formErrorMessages.password}"
+                            formControlName="password" type="password" class="form-control" placeholder="Password">
+
+                            <span [ngClass]='{"fade": formErrorMessages.password}' *ngIf="formErrorMessages.password" class="error text=left text-danger">
+                                {{formErrorMessages.password}}
+                         </span>
+                        </ion-item>
+
+
+                        <ion-item class="transparent">
+                            <!-- <label>Password</label> -->
+                            <input 
+                            [ngClass]="{'form-input-error': formErrorMessages.confPassword}"
+                            formControlName="confPassword" type="password" class="form-control" placeholder="Confirm Password">
+
+                            <span [ngClass]='{"fade": formErrorMessages.confPassword}' *ngIf="formErrorMessages.confPassword" class="error text=left text-danger">
+                                {{formErrorMessages.confPassword}}
+                         </span>
+
+
+
+                        </ion-item>
+
+                        <ion-item class="transparent">
+                            <button [disabled]="registerForm.invalid" (click)="submit()" color="light" block>Register</button>
+                        </ion-item>
+                    </ion-list>
+                </ion-col>
+            </ion-row>
         </form>
         <!-- <ion-footer >
             <ion-toolbar>

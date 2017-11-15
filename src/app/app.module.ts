@@ -5,6 +5,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
 
+
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { AngularFireDatabaseModule } from "angularfire2/database";
@@ -12,6 +13,13 @@ import { AngularFireModule} from "angularfire2"
 import { AngularFireAuthModule } from "angularfire2/auth";
 import { LoginPageModule } from '../pages/login/login.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AuthProvider } from '../providers/auth/auth';
+import { HttpClientModule } from '@angular/common/http';
+import  { IonicStorageModule } from "@ionic/storage"
+
+import { FingerprintAIO } from "@ionic-native/fingerprint-aio";
+
+
 
 export const firebaseConfigg = {
   apiKey: "AIzaSyCDAHorj-wCdDopRZbszLCDKbquuc0OSfs",
@@ -35,6 +43,8 @@ export const firebaseConfigg = {
     AngularFireDatabaseModule,
     LoginPageModule, 
     ReactiveFormsModule,
+    HttpClientModule,
+    IonicStorageModule.forRoot()
 
 
   ],
@@ -46,7 +56,10 @@ export const firebaseConfigg = {
   providers: [
     StatusBar,
     SplashScreen,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    {provide: ErrorHandler, useClass: IonicErrorHandler,},
+    AuthProvider, 
+    FingerprintAIO
+    
   ]
 })
 export class AppModule {}
