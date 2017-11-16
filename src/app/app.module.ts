@@ -14,7 +14,6 @@ import { AngularFireAuthModule } from "angularfire2/auth";
 import { LoginPageModule } from '../pages/login/login.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthProvider } from '../providers/auth/auth';
-import { HttpClientModule } from '@angular/common/http';
 import  { IonicStorageModule } from "@ionic/storage"
 
 import { FingerprintAIO } from "@ionic-native/fingerprint-aio";
@@ -43,7 +42,6 @@ export const firebaseConfigg = {
     AngularFireDatabaseModule,
     LoginPageModule, 
     ReactiveFormsModule,
-    HttpClientModule,
     IonicStorageModule.forRoot()
 
 

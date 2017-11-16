@@ -1,29 +1,39 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { AngularFireAuth } from 'angularfire2/auth';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { AngularFireDatabase, DatabaseQuery, AngularFireList } from 'angularfire2/database';
 import * as firebase from 'firebase/app'
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import "rxjs/add/operator/debounceTime";
+
+
+import "rxjs/Rx"
+
 
 import { Storage } from "@ionic/storage";
 import { AlertController } from 'ionic-angular';
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  isLoggedIn?: boolean;
+  fingerprint?: string;
+  
+}
 
 @Injectable()
 export class AuthProvider {
-
+  
+  user$: BehaviorSubject<any> = new BehaviorSubject(null);
   users: AngularFireList<any>;
   isAuthenticated = new Subject<boolean>();
   constructor(
-    public http: HttpClient,
     private afAuth: AngularFireAuth,
     private alertCtrl: AlertController,
     private _storage: Storage,
-    private _db: AngularFireDatabase
+    private _db: AngularFireDatabase,
   ) {
     this.users = _db.list('users/')
     afAuth.auth.onAuthStateChanged(user => {
@@ -35,6 +45,52 @@ export class AuthProvider {
     })
   }
 
+  get user (): Observable<User> {
+    return this.user$.asObservable();
+  }
+
+  setUser(user) {
+    this.user$.next(user);
+  }
+
+  getUser(userId?: string): Observable<any> {
+    if(this.isAuthenticated) {
+      let user: User;
+      return this._db.object('users')
+        .valueChanges().take(1).switchMap(res => {
+          user = res[userId];
+          return Observable.of(user)
+        })
+        
+    }
+  }
+
+  saveUser(user) {
+    const payload= {
+      user: user.name,
+      email: user.email,
+      isLoggedIn: true,
+      id: user.id,
+    }
+    
+    const promise = this.users.push(payload);
+    Observable.fromPromise(promise)
+      .switchMap(res => {
+        this.setUser(payload);
+        return this.storageControl('set', 'user', payload)
+      });
+  }
+
+  updateUser(user: User): Observable<any> {
+
+    console.log(user);
+    user.isLoggedIn = true;
+    this.storageControl('set', 'user', user);
+    const promise = this._db.object('users/' + user.id).update(user);
+    return Observable.fromPromise(promise)
+  }
+
+
   displayAlt(alertTitle, alertSub) {
     let theAlert = this.alertCtrl.create({
       title: alertTitle,
@@ -45,16 +101,40 @@ export class AuthProvider {
   }
 
 
+  
   signup(user) {
-    const promise: Promise<any> = this.afAuth.auth.createUserWithEmailAndPassword(user.email, user.password);
+    const promise: Promise<any> = this.afAuth.auth
+    .createUserWithEmailAndPassword(user.email, user.password);
     return Observable.fromPromise(promise);
   }
 
-  signin(user) {
+  getUserStorage():Observable<any> {
+    const promise = this.storageControl('get', 'user');
+    return Observable.fromPromise(promise);
+  }
+
+  signin(action, user){
+    if(action === "fingerprint") { 
+      this.getUserStorage().switchMap(user => {
+        return this.getUser(user.uid)});
+    }
     const promise = this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
-    return Observable.fromPromise(promise);
+    return Observable.fromPromise(promise).switchMap(res => this.getUser(res.uid));
   }
+  
 
+  signOut(): Observable<any> {
+    let user: User;
+    return this.getUserStorage().switchMap(res => {
+      user = res;
+      user.isLoggedIn = false;
+      const promise: Promise<any> = this._db
+        .object('/users/' + user.id).
+        update(user);
+      return Observable.fromPromise(promise)
+    })
+    .switchMap(() => Observable.of(user));
+  }
 
   storageControl(action, key?, value?) {
     if (action === "set") {
@@ -73,76 +153,4 @@ export class AuthProvider {
     }
   }
 
-  saveNewUser(user) {
-    const promise = this.users.push(user);
-    Observable.fromPromise(promise)
-      .subscribe(res => {
-        let userObject: any = {
-          name: user.name,
-          email: user.email
-        }
-        userObject.id = res.uid;
-        this.activeUser$.next(userObject);
-        return this.storageControl('set', 'user', userObject)
-      }, error => {
-
-      });
-  }
-
-  updateUser(user, id: string) {
-    let userObject: any = {
-      id: user.uid,
-      email: user.email,
-      isLoggedIn: true
-    }
-    const promise: Promise<any> = this._db.object('/users/' + id).update(userObject);
-    Observable.fromPromise(promise).subscribe(
-      (res: Object) => {
-        this.activeUser$.next(userObject);
-        return this.storageControl('set', 'user', userObject)
-      }, error => {
-
-      });
-  }
-
-  signOut(): Observable<any>{
-    
-    const user= this.activeUser$.getValue();
-    user.isLoggedIn = false;
-    user.name = 'shamnex1'
-    console.log(user);
-    const promise: Promise<any> = this._db
-      .object('/users/' + user.id).
-        update(user);
-     return Observable.fromPromise(promise)
-        .switchMap(()=> Observable.of(user));
-       
-  }
-
-  activeUser$: BehaviorSubject<any> = new BehaviorSubject(null);
-  getActiveUser(user?): Observable<any> {
-    if (user) {
-      console.log('user payload')
-      this.activeUser$.next(user);
-      return Observable.of(user);
-    }else {
-      console.log('no user payload')  
-      let firebaseUser;
-      return this.isAuthenticated.switchMap(x => {
-        if (x === true) { 
-       firebaseUser = firebase.auth().currentUser;
-        const promise = this.storageControl('get', 'user');
-          return Observable.fromPromise(promise)
-         }
-      }).switchMap((user)=> {
-        const userObj  = {
-          email: firebaseUser.email,
-          id: firebaseUser.uid,
-          isLoggedIn: user.isLoggedIn
-        }  
-        this.activeUser$.next(userObj);
-        return Observable.of(userObj);
-      })
-    }
-  }
 }

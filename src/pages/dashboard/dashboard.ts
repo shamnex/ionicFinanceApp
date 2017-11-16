@@ -24,7 +24,7 @@ export class DashboardPage implements OnInit {
     private _loading: LoadingController,
     public menu: MenuController) {
       menu.enable(true);
-      this._auth.getActiveUser().take(1).subscribe(user => {
+      this._auth.getUser().take(1).subscribe(user => {
         this.currentUser = user;
       })
   }
@@ -32,6 +32,7 @@ export class DashboardPage implements OnInit {
   currentUser;
 
   ngOnInit() {
+    this.menu.enable(true);
     
     this._auth.isAuthenticated.subscribe((isIt)=> {
       return isIt? this.navCtrl.setRoot('DashboardPage'): this.navCtrl.setRoot('LoginPage');
@@ -51,14 +52,13 @@ export class DashboardPage implements OnInit {
 
     loading.present();
     this._auth.signOut().subscribe((user)=> {
+      console.log(user);
       this._auth.storageControl('set', 'user', user);
       this.menu.close();
-      loading.dismiss();
-      loading.onDidDismiss(()=> {
-        setTimeout(()=>{
-          this.navCtrl.goToRoot(null);
-        },300)
-      })
+      this.navCtrl.goToRoot(null);
+      setTimeout(() => {
+        loading.dismiss();
+      }, 300)
     });
 
   }

@@ -7,7 +7,7 @@ import { HomePage } from '../pages/home/home';
 import { LoginPage } from '../pages/login/login';
 import { AuthProvider } from '../providers/auth/auth';
 @Component({
-  templateUrl: 'app.html'
+  templateUrl: 'app.html',
 })
 export class MyApp {
 
@@ -25,7 +25,7 @@ export class MyApp {
   }
 
   ngOnInit(): void {  
-    this._auth.getActiveUser().subscribe(user => console.log(user))
+    // this._auth.activeUser$.subscribe(user => console.log(user))
   }
 }
 

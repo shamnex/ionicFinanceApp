@@ -1,9 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage, Platform, NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AuthProvider } from '../../providers/auth/auth';
+import { AuthProvider, User } from '../../providers/auth/auth';
+import { AlertController } from 'ionic-angular';
+
 
 import { FingerprintAIO, FingerprintOptions } from "@ionic-native/fingerprint-aio";
+import { Observable } from 'rxjs/Observable';
 
 
 /**
@@ -30,6 +33,7 @@ export class LoginPage implements OnInit {
     private platform: Platform,
     private _fb: FormBuilder,
     private _auth: AuthProvider,
+    private _alertCtrl: AlertController,
     private _loading: LoadingController,
     private _fingerPrint: FingerprintAIO
   ) {
@@ -56,15 +60,14 @@ export class LoginPage implements OnInit {
         passInput.onfocus = () => {
 
           if (emailControl.value === res.email) {
-            this._auth.storageControl('get', 'user').then((user)=> {
-              console.log('use fingerprint');
-              console.log(user);
-                const fingerprintOptions: FingerprintOptions = {
-                  clientId: user.email,
-                  clientSecret: user.id,
-                  disableBackup: true
-                }
-              this.showFingerprint(fingerprintOptions);
+            this._auth.storageControl('get', 'user').then((user) => {
+              const fingerprintOptions: FingerprintOptions = {
+                clientId: user.email,
+                clientSecret: user.id,
+                disableBackup: true
+              }
+
+              this.showFingerprint(user, fingerprintOptions);
             })
           }
         };
@@ -72,13 +75,39 @@ export class LoginPage implements OnInit {
     })
   }
 
-  async showFingerprint(options) {
+  // prompt() {
+  //   let alert = this._alertCtrl.create({
+  //     title: 'Finge Print',
+  //     message: 'Use Fingerprint to sign in next time',
+  //     buttons: [
+  //       {
+  //         text: 'Yes',
+  //         role: 'cancel',
+  //         handler: () => {
+
+  //         }
+  //       },
+  //       {
+  //         text: 'Buy',
+  //         handler: () => {
+  //           console.log('Buy clicked');
+  //         }
+  //       }
+  //     ]
+  //   });
+  //   alert.present();
+  // }
+
+
+  async showFingerprint(user, options) {
     try {
       await this.platform.ready();
       const available = await this._fingerPrint.isAvailable();
       console.log(available);
-      if(available === "OK") {
-        this._fingerPrint.show(options);
+      if (available === "OK") {
+        const result = await this._fingerPrint.show(options);
+        const fingerprint = result.withFingerprint;
+        this.submit();
       }
     }
     catch (e) {
@@ -87,27 +116,39 @@ export class LoginPage implements OnInit {
   }
 
   submit() {
+    // const loading = this._loading.create({
+    //   content: 'Signing you in...'
+    // });
+    // loading.present();
+    // const signInPayLoad = this.loginForm.getRawValue();
+    // this._auth.signin("password", signInPayLoad)
+    // .switchMap(
+    //   (user: User) =>{ console.log(user); return this._auth.updateUser(user)})
+    //   .subscribe(()=> {
+    //     this.navCtrl.push('DashboardPage');
+    //   }, error => {
+    //     loading.dismiss();
+    //     this._auth.displayAlt('Error', error);
+        
+    //   });
 
     const loading = this._loading.create({
       content: 'Signing you in...'
     });
-
     loading.present();
-
-    const user = this.loginForm.getRawValue();
-    this._auth.signin(user).subscribe(
-      res => {
-        const userId = res.uid
-        this._auth.updateUser(res, userId);
-
+    const signInPayLoad = this.loginForm.getRawValue();
+    this._auth.signin("password", signInPayLoad)
+      .switchMap(user=> {
+        return this._auth.updateUser(user)
+      }).catch(err => {
+        loading.dismiss();
+        this._auth.displayAlt('Error', err);
+        return Observable.throw(err);
+        }).take(1).subscribe(()=> {
+          loading.dismiss();
         this.navCtrl.push('DashboardPage');
-        loading.dismiss();
-
-      },
-      error => {
-        this._auth.displayAlt('Error', error);
-        loading.dismiss();
       });
+     
   }
   gotoReg() {
     this.navCtrl.push('RegisterPage');

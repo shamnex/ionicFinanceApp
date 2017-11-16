@@ -104,7 +104,6 @@ export class RegisterPage implements OnInit {
   }
 
   setMessages(control: AbstractControl, inputName: string) {
-    console.log(this.formErrorMessages)
     if ((control.touched || control.dirty) && control.errors) {
       return Object.keys(control.errors).map(keys =>
         this.validationMessages[inputName][keys]
@@ -118,21 +117,24 @@ export class RegisterPage implements OnInit {
       content: 'Signing you up...'
     })
 
+    const payload = this.registerForm.getRawValue();
+
     loading.present()
-    const user = this.registerForm.getRawValue();
-    
-    this.auth.signup(user).subscribe((res)=> {
+    const userPayload = this.registerForm.getRawValue();
+    this.auth.signup(userPayload).subscribe((res)=> {
+      userPayload.id = res.uid;
+      this.auth.saveUser(userPayload);
       loading.dismiss();
-      this.regSuccess(res, user);
-       this.auth.saveNewUser(user);
-    }, error=> {
+      this.regSuccess(res, payload);
+    },error=> {
       loading.dismiss();
       this.auth.displayAlt('Error', error)
     })
+
   }
 
-  regSuccess(result, user) {
+  regSuccess(result, payload) {
     this.auth.displayAlt(result.email, 'Account Created Successfullly');
-     this.auth.signin(user).subscribe(res => this.navCtrl.push('DashboardPage'))
+     this.auth.signin('password',payload).subscribe(res => this.navCtrl.push('DashboardPage'))
   }
 }
