@@ -46,12 +46,15 @@ export class LoginPage implements OnInit {
 
   }
 
+  user;
 
 
   ionViewDidLoad() {
   }
 
   ngOnInit() {
+    
+   this.user = this._auth.user;
     const emailControl = this.loginForm.get('email');
     this._auth.storageControl('get', 'user').then(res => {
       if (res !== null) {
@@ -66,7 +69,6 @@ export class LoginPage implements OnInit {
                 clientSecret: user.id,
                 disableBackup: true
               }
-
               this.showFingerprint(user, fingerprintOptions);
             })
           }
@@ -74,7 +76,7 @@ export class LoginPage implements OnInit {
       }
     })
   }
-
+  
   // prompt() {
   //   let alert = this._alertCtrl.create({
   //     title: 'Finge Print',
@@ -107,7 +109,7 @@ export class LoginPage implements OnInit {
       if (available === "OK") {
         const result = await this._fingerPrint.show(options);
         const fingerprint = result.withFingerprint;
-        this.submit();
+        this.submit('finger');
       }
     }
     catch (e) {
@@ -115,39 +117,23 @@ export class LoginPage implements OnInit {
     }
   }
 
-  submit() {
-    // const loading = this._loading.create({
-    //   content: 'Signing you in...'
-    // });
-    // loading.present();
-    // const signInPayLoad = this.loginForm.getRawValue();
-    // this._auth.signin("password", signInPayLoad)
-    // .switchMap(
-    //   (user: User) =>{ console.log(user); return this._auth.updateUser(user)})
-    //   .subscribe(()=> {
-    //     this.navCtrl.push('DashboardPage');
-    //   }, error => {
-    //     loading.dismiss();
-    //     this._auth.displayAlt('Error', error);
-        
-    //   });
-
+  submit(action?) {
     const loading = this._loading.create({
       content: 'Signing you in...'
     });
     loading.present();
     const signInPayLoad = this.loginForm.getRawValue();
-    this._auth.signin("password", signInPayLoad)
+    this._auth.signin(action?action:"password", signInPayLoad)
       .switchMap(user=> {
+        console.log(user);
         return this._auth.updateUser(user)
-      }).catch(err => {
+      }).subscribe(()=> {
+          loading.dismiss();
+        this.navCtrl.setRoot('DashboardPage');
+      },err => {
         loading.dismiss();
         this._auth.displayAlt('Error', err);
-        return Observable.throw(err);
-        }).take(1).subscribe(()=> {
-          loading.dismiss();
-        this.navCtrl.push('DashboardPage');
-      });
+        });
      
   }
   gotoReg() {

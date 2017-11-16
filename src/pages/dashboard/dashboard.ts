@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterContentInit } from '@angular/core';
 import { IonicPage, NavController,LoadingController, NavParams, MenuController } from 'ionic-angular';
-import { AuthProvider } from '../../providers/auth/auth';
+import { AuthProvider, User } from '../../providers/auth/auth';
 import 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable';
 
 /**
  * Generated class for the DashboardPage page.
@@ -15,7 +16,12 @@ import 'rxjs/Rx'
   selector: 'page-dashboard',
   templateUrl: 'dashboard.html',
 })
-export class DashboardPage implements OnInit {
+export class DashboardPage implements OnInit, AfterContentInit {
+
+  ngAfterContentInit(): void {
+    this.menu.enable(true, 'menu');
+    
+  }
 
   constructor(
     public navCtrl: NavController, 
@@ -23,21 +29,31 @@ export class DashboardPage implements OnInit {
     private _auth: AuthProvider,
     private _loading: LoadingController,
     public menu: MenuController) {
-      menu.enable(true);
+      menu.enable(true, 'menu');
       this._auth.getUser().take(1).subscribe(user => {
         this.currentUser = user;
       })
   }
 
   currentUser;
+  user: Observable<User>
 
   ngOnInit() {
-    this.menu.enable(true);
     
     this._auth.isAuthenticated.subscribe((isIt)=> {
-      return isIt? this.navCtrl.setRoot('DashboardPage'): this.navCtrl.setRoot('LoginPage');
+      return isIt === false? this.navCtrl.setRoot('LoginPash'): false;
     })
+this._auth.signin('finger').subscribe(x=> this.currentUser = x);
 
+  //  this._auth.user$.subscribe(user => {
+  //    console.log(user)
+  //  });
+    
+  }
+
+  openMenu() {
+    this.menu.enable(true, 'menu');   
+    this.menu.open()
   }
   
   ionViewDidLoad() {

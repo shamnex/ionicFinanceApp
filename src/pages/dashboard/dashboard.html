@@ -14,10 +14,11 @@
 </ion-header> -->
 
 
-<ion-menu [content]="content">
+<ion-menu type="overlay"[content]="content">
     <ion-header color="primary">
         <ion-toolbar>
-            <ion-title>MENU</ion-title>
+            <ion-title *ngIf="currentUser">Welcome <span color="primary">{{ currentUser.user}}</span> 
+            </ion-title>
         </ion-toolbar>
     </ion-header>
     <ion-content>
@@ -32,8 +33,8 @@
 </ion-menu>
 
 <ion-content #content >
-    <div class="jumbo">
-            <button ion-button menuToggle icon-only>
+    <div class="jumbo1">
+            <button  persistent="true" ion-button menuToggle icon-only>
                     <ion-icon name='menu'></ion-icon>
                   </button>
         <img class="logo" src="assets/imgs/logo.png" alt="">
@@ -70,4 +71,10 @@
         </ion-row>
     </ion-grid>
 </ion-content>
+<!-- 
+<ion-footer>
+        <ion-toolbar>
+          <ion-title>Footer</ion-title>
+        </ion-toolbar>
+      </ion-footer> -->
 

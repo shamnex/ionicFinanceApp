@@ -1,7 +1,7 @@
-.jumbo {
+.jumbo1 {
     background: linear-gradient(0deg, #16736B, #00A193);
-    height: 30vh;
-    padding: 40px 20px;
+    height: 25%;
+    padding: 40px 20px 60px;
     p {
         color: #fff;
         text-transform: uppercase;
@@ -13,13 +13,11 @@
 }
 
 ion-content {
-    height: 70vj;
     .logo {
         height: 70px;
         float: right;
     }
     ion-card {
-        border: solid 5px #00A193;
         padding: 20px 0;
         height: 100%;
         width: 100%;
@@ -42,8 +40,13 @@ ion-menu {
     ion-header {
         ion-toolbar {
             ion-title {
-                background-color: #fff;
                 color: color($colors, primary);
+                span {
+                    color: #00A193;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                }
+         
             }
         }
     }

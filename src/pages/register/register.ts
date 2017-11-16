@@ -12,7 +12,7 @@ import * as firebase from 'firebase/app';
 import "rxjs/add/operator/debounceTime";
 import { Observable } from 'rxjs/Observable';
 import { AuthProvider } from '../../providers/auth/auth';
-
+import { LoginPage } from '../login/login';
 
 @IonicPage(
   { name: 'RegisterPage' }
@@ -25,7 +25,6 @@ export class RegisterPage implements OnInit {
   registerForm: FormGroup;
   loginPage: any;
   dashPage: any;
-
   formErrorMessages = {
     name: "",
     password: "",
@@ -60,7 +59,7 @@ export class RegisterPage implements OnInit {
     private _fb: FormBuilder,
     public alertCtrl: AlertController,
     public auth: AuthProvider,
-    public loading: LoadingController
+    public loading: LoadingController,
   ) {
     this.dashPage = "DashboardPage"
   }
@@ -135,6 +134,6 @@ export class RegisterPage implements OnInit {
 
   regSuccess(result, payload) {
     this.auth.displayAlt(result.email, 'Account Created Successfullly');
-     this.auth.signin('password',payload).subscribe(res => this.navCtrl.push('DashboardPage'))
+     this.auth.signin('password',payload).subscribe(res => this.navCtrl.setRoot('DashboardPage'))
   }
 }

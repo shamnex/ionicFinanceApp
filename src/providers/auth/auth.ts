@@ -26,7 +26,7 @@ export interface User {
 @Injectable()
 export class AuthProvider {
   
-  user$: BehaviorSubject<any> = new BehaviorSubject(null);
+  user$: Subject<any> = new Subject;
   users: AngularFireList<any>;
   isAuthenticated = new Subject<boolean>();
   constructor(
@@ -72,18 +72,17 @@ export class AuthProvider {
       isLoggedIn: true,
       id: user.id,
     }
-    
-    const promise = this.users.push(payload);
+    console.log(payload);
+    const promise = this._db.object('users/'+payload.id).set(payload);
     Observable.fromPromise(promise)
       .switchMap(res => {
-        this.setUser(payload);
+        this.setUser(res);
         return this.storageControl('set', 'user', payload)
       });
   }
 
   updateUser(user: User): Observable<any> {
 
-    console.log(user);
     user.isLoggedIn = true;
     this.storageControl('set', 'user', user);
     const promise = this._db.object('users/' + user.id).update(user);
@@ -113,13 +112,19 @@ export class AuthProvider {
     return Observable.fromPromise(promise);
   }
 
-  signin(action, user){
-    if(action === "fingerprint") { 
-      this.getUserStorage().switchMap(user => {
-        return this.getUser(user.uid)});
-    }
-    const promise = this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
-    return Observable.fromPromise(promise).switchMap(res => this.getUser(res.uid));
+  signin(action, user?){
+    if(action === "finger") { 
+      return this.getUserStorage().switchMap(user => {
+        this.setUser(user);
+        return this.getUser(user.id);
+        });
+      } 
+
+      const promise = this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
+      return Observable.fromPromise(promise).switchMap(res => this.getUser(res.uid));
+      
+        
+      
   }
   
 
