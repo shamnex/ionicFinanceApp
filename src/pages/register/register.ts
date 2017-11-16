@@ -134,6 +134,6 @@ export class RegisterPage implements OnInit {
 
   regSuccess(result, payload) {
     this.auth.displayAlt(result.email, 'Account Created Successfullly');
-     this.auth.signin('password',payload).subscribe(res => this.navCtrl.setRoot('DashboardPage'))
+    this.navCtrl.pop();
   }
 }

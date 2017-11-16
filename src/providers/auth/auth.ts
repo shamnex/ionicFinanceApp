@@ -150,11 +150,11 @@ export class AuthProvider {
     }
     if (action === "delete") {
       if (!key) {
-        this.displayAlt('Warning', 'About to delete all user data');
+        // this.displayAlt('Warning', 'About to delete all user data');
         return this._storage.clear();
       }
-      this.displayAlt(key, "Delete this users data");
-      return this._storage.remove(key);
+      // this.displayAlt(key, "Delete this users data");
+      // return this._storage.remove(key);
     }
   }
 
