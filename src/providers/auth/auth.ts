@@ -82,7 +82,6 @@ export class AuthProvider {
   }
 
   updateUser(user: User): Observable<any> {
-
     user.isLoggedIn = true;
     this.storageControl('set', 'user', user);
     const promise = this._db.object('users/' + user.id).update(user);
@@ -121,10 +120,8 @@ export class AuthProvider {
       } 
 
       const promise = this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
-      return Observable.fromPromise(promise).switchMap(res => this.getUser(res.uid));
-      
-        
-      
+      return Observable.fromPromise(promise)
+      .switchMap(res => this.getUser(res.uid)); 
   }
   
 
