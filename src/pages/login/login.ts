@@ -7,6 +7,8 @@ import { AlertController } from 'ionic-angular';
 
 import { FingerprintAIO, FingerprintOptions } from "@ionic-native/fingerprint-aio";
 import { Observable } from 'rxjs/Observable';
+import "rxjs/Rx"
+
 
 
 /**
@@ -24,7 +26,6 @@ import { Observable } from 'rxjs/Observable';
 export class LoginPage implements OnInit {
   loginForm: FormGroup;
   regPage: any = 'RegisterPage';
-  fingerprintOptions: FingerprintOptions
   @ViewChild('passwordInput') passwordInput: ElementRef;
 
   constructor(
@@ -47,31 +48,33 @@ export class LoginPage implements OnInit {
   }
 
   user;
-
-
+  
+  initFingerprint(){
+    this._auth.storageControl('get', 'user').then((user) => {
+      this.showFingerprint(user, this.fingerprintOptions(user));
+    })
+  }
+  
+  fingerprintOptions(user): FingerprintOptions {
+    return  {
+      clientId: user.email,
+      clientSecret: user.id,
+      disableBackup: true
+    }
+  }
   ionViewDidLoad() {
   }
 
   ngOnInit() {
-    
-   this.user = this._auth.user;
+
+    this.user = this._auth.user;
+    const passInput: HTMLInputElement = this.passwordInput.nativeElement;
     const emailControl = this.loginForm.get('email');
     this._auth.storageControl('get', 'user').then(res => {
       if (res !== null) {
         emailControl.setValue(res.email)
-        const passInput: HTMLInputElement = this.passwordInput.nativeElement;
         passInput.onfocus = () => {
-
-          if (emailControl.value === res.email) {
-            this._auth.storageControl('get', 'user').then((user) => {
-              const fingerprintOptions: FingerprintOptions = {
-                clientId: user.email,
-                clientSecret: user.id,
-                disableBackup: true
-              }
-              this.showFingerprint(user, fingerprintOptions);
-            })
-          }
+          emailControl.value === res.email ? this.initFingerprint() : null
         };
       }
     })
@@ -90,9 +93,8 @@ export class LoginPage implements OnInit {
   //         }
   //       },
   //       {
-  //         text: 'Buy',
+  //         text: 'No',
   //         handler: () => {
-  //           console.log('Buy clicked');
   //         }
   //       }
   //     ]
@@ -117,24 +119,26 @@ export class LoginPage implements OnInit {
     }
   }
 
+
   submit(action?) {
     const loading = this._loading.create({
       content: 'Signing you in...'
     });
     loading.present();
     const signInPayLoad = this.loginForm.getRawValue();
-    this._auth.signin(action?action:"password", signInPayLoad)
-      .switchMap(user=> {
-        console.log(user);
-        return this._auth.updateUser(user)
-      }).subscribe(()=> {
+
+        this._auth.signin(action?action:"password", signInPayLoad)
+        .switchMap(user=> {
+          console.log(user);
+          return this._auth.updateUser(user).withLatestFrom()
+        }).subscribe(()=> {
+            loading.dismiss();
+          this.navCtrl.setRoot('DashboardPage');
+           
+        },err => {
           loading.dismiss();
-        this.navCtrl.setRoot('DashboardPage');
-      },err => {
-        loading.dismiss();
-        this._auth.displayAlt('Error', err);
-        });
-     
+          this._auth.displayAlt('Error', err);
+          });
   }
   gotoReg() {
     this.navCtrl.push('RegisterPage');
